@@ -5,6 +5,9 @@
 2. When it starts, take a moment to do a deep blink or a simple eye exercise.
 3. Your eyes will thank you - enjoy feeling more relaxed and refreshed!
 
+## Requirements
+Python 3.7 or higher
+
 ## Setup
 1. Clone the repository:
    ```bash
