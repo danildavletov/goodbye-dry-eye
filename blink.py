@@ -1,51 +1,47 @@
 import pygame
 import sys
 import time
+import mss
 
-# Initialize pygame
+# ---------- INIT ----------
 pygame.init()
 
-# Get display info
-display_info = pygame.display.Info()
-SCREEN_WIDTH = display_info.current_w
-SCREEN_HEIGHT = display_info.current_h
+info = pygame.display.Info()
+WIDTH = info.current_w
+HEIGHT = info.current_h
 
-# Create fullscreen window
-screen = pygame.display.set_mode(
-    (SCREEN_WIDTH, SCREEN_HEIGHT),
-    pygame.FULLSCREEN
+# ---------- SCREEN CAPTURE BEFORE FULLSCREEN ----------
+sct = mss.mss()
+monitor = sct.monitors[1]  # primary monitor
+shot = sct.grab(monitor)
+desktop_image = pygame.image.frombuffer(
+    shot.rgb,
+    (shot.width, shot.height),
+    "RGB"
 )
 
-pygame.display.set_caption("Blink Simulator")
-
+# ---------- OPEN FULLSCREEN ----------
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 
-# Blink configuration
-blink_speed = 40          # pixels per frame
-pause_closed = 0.08       # seconds eyes stay closed
-pause_open = 1.2          # seconds between blinks
+BLACK = (0, 0, 0)
+blink_speed = 40        # pixels per frame
+pause_closed = 0.08     # seconds
 
-black = (0, 0, 0)
-
-def blink():
-    # Closing
+# ---------- BLINK FUNCTION ----------
+def blink_once():
     height = 0
-    while height < SCREEN_HEIGHT // 2:
+
+    # ---- CLOSING ----
+    while height < HEIGHT // 2:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
 
-        screen.fill((255, 255, 255))
-
-        pygame.draw.rect(
-            screen, black,
-            (0, 0, SCREEN_WIDTH, height)
-        )
-        pygame.draw.rect(
-            screen, black,
-            (0, SCREEN_HEIGHT - height, SCREEN_WIDTH, height)
-        )
+        screen.blit(desktop_image, (0, 0))
+        pygame.draw.rect(screen, BLACK, (0, 0, WIDTH, height))
+        pygame.draw.rect(screen, BLACK, (0, HEIGHT - height, WIDTH, height))
 
         pygame.display.flip()
         height += blink_speed
@@ -53,29 +49,23 @@ def blink():
 
     time.sleep(pause_closed)
 
-    # Opening
+    # ---- OPENING ----
     while height > 0:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
 
-        screen.fill((255, 255, 255))
-
-        pygame.draw.rect(
-            screen, black,
-            (0, 0, SCREEN_WIDTH, height)
-        )
-        pygame.draw.rect(
-            screen, black,
-            (0, SCREEN_HEIGHT - height, SCREEN_WIDTH, height)
-        )
+        screen.blit(desktop_image, (0, 0))
+        pygame.draw.rect(screen, BLACK, (0, 0, WIDTH, height))
+        pygame.draw.rect(screen, BLACK, (0, HEIGHT - height, WIDTH, height))
 
         pygame.display.flip()
         height -= blink_speed
         clock.tick(60)
 
-# Main loop
-while True:
-    blink()
-    time.sleep(pause_open)
+
+# ---------- RUN ----------
+blink_once()
+pygame.quit()
+sys.exit()
